@@ -1,5 +1,5 @@
 
-A simple ["delivery"](https://datatracker.ietf.org/doc/html/rfc5321#section-2.3.10) smtp server that makes it easy to have infinite email addresses. Useful for development and testing.
+A simple ["delivery"](https://datatracker.ietf.org/doc/html/rfc5321#section-2.3.10) smtp server that makes it easy to have infinite email addresses. Useful for development and testing. It's essentially just configuration for the excellent [Nodemailer SMTP Server library](https://nodemailer.com/extras/smtp-server/)
 
 ## Setup
 
@@ -32,7 +32,7 @@ EMAIL_DOMAIN=dev.mail.example.com
 EMAIL_ACCOUNT_PREFIX=goodmailonly-
 ```
 
-Emails sent to addresses that don't start with the prefix will be ignored. This provides some crude protection against spam. In the above example, an email sent to `goodmailonly-testuser573@dev.mail.example.com` will be saved. An email sent to `testuser573@dev.mail.example.com` will be ignored.
+Emails sent to addresses that don't start with the prefix will be ignored. This provides some crude protection against spam. In the above example, an email sent to `goodmailonly-testuser573@dev.mail.example.com` will be saved. An email sent to `testuser573@dev.mail.example.com` will be refused.
 
 
   
