@@ -1,10 +1,10 @@
 import SMTPConnection from 'nodemailer/lib/smtp-connection/index.js'
 import { nanoid } from 'nanoid'
 
-const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN
+const EMAIL_DOMAINS = (process.env.EMAIL_DOMAIN || '').split(',')
 const EMAIL_ACCOUNT_PREFIX = process.env.EMAIL_ACCOUNT_PREFIX
 
-if (!EMAIL_DOMAIN || !EMAIL_ACCOUNT_PREFIX) {
+if (!EMAIL_DOMAINS || !EMAIL_ACCOUNT_PREFIX) {
   throw new Error(
     'EMAIL_DOMAIN and EMAIL_ACCOUNT_PREFIX env variables must be set'
   )
@@ -12,7 +12,7 @@ if (!EMAIL_DOMAIN || !EMAIL_ACCOUNT_PREFIX) {
 
 const connection = new SMTPConnection({
   port: 25,
-  host: EMAIL_DOMAIN,
+  host: EMAIL_DOMAINS[0],
   secure: false,
   ignoreTLS: true,
   requireTLS: false,
@@ -43,7 +43,7 @@ connection.connect((err) => {
   const testMessageId = nanoid(8)
   const envelope = {
     from: 'test@test.com',
-    to: `${EMAIL_ACCOUNT_PREFIX}${testMessageId}@${EMAIL_DOMAIN}`
+    to: `${EMAIL_ACCOUNT_PREFIX}${testMessageId}@${EMAIL_DOMAINS}`
   }
 
   connection.send(envelope, 'Test message ' + testMessageId, (err, info) => {

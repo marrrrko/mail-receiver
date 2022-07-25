@@ -3,11 +3,11 @@ import mailparser from 'mailparser'
 import { createWriteStream, writeFile } from 'fs'
 
 const { simpleParser } = mailparser
-const ADMIN_USER_PASSWORD = process.env.ADMIN_USER_PASSWORD
-const EMAIL_DOMAIN = process.env.EMAIL_DOMAIN
+const API_KEY = process.env.API_KEY
+const EMAIL_DOMAINS = (process.env.EMAIL_DOMAIN || '').split(',')
 const EMAIL_ACCOUNT_PREFIX = process.env.EMAIL_ACCOUNT_PREFIX
 
-if (!ADMIN_USER_PASSWORD || ADMIN_USER_PASSWORD.length < 8) {
+if (!API_KEY || API_KEY.length < 8) {
   throw new Error('ADMIN_USER_PASSWORD of 8 characters or more is required')
 }
 
@@ -33,11 +33,13 @@ function onConnect(session, callback) {
 }
 
 function onRcptTo(address, session, callback) {
-  const recipientAddess = address.address.toLowerCase()
+  const recipientAddress = address.address.toLowerCase()
 
   if (
-    recipientAddess.startsWith(EMAIL_ACCOUNT_PREFIX) &&
-    recipientAddess.endsWith(EMAIL_DOMAIN)
+    recipientAddress.startsWith(EMAIL_ACCOUNT_PREFIX) &&
+    EMAIL_DOMAINS.find((domain) =>
+      recipientAddress.endsWith(domain.toLocaleLowerCase())
+    ) !== undefined
   ) {
     console.log(`Email to ${address.address} accepted`)
     return callback() // Accept the address
