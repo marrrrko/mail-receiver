@@ -1,0 +1,34 @@
+{
+  "name": "mail-receiver",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Simple SMTP Server that saves all emails to file",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --require dotenv/config server.js",
+    "send-test": "node --require dotenv/config send-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marrrrko/mail-receiver.git"
+  },
+  "keywords": [
+    "smpt",
+    "email",
+    "server",
+    "development"
+  ],
+  "author": "Mark Carrier <markcarrier@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marrrrko/mail-receiver/issues"
+  },
+  "homepage": "https://github.com/marrrrko/mail-receiver#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "mailparser": "^3.5.0",
+    "nanoid": "^4.0.0",
+    "nodemailer": "^6.7.7",
+    "smtp-server": "^3.11.0"
+  }
+}
