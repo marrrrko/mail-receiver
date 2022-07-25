@@ -12,19 +12,19 @@ You will need two DNS records:
 ### A Record
 
 ```
-dev.mail.example.com   A    <ip of your server>
+devserver.example.com   A    <ip of your server>
 ```
 
 ### MX Record
 ```
-dev.mail.example.com   MX 10 dev.mail.example.com 
+dev.mail.example.com   MX   10   devserver.example.com 
 ```
 
 ### Configuration
 
-After cloning this repo, inside the project direction:
+After cloning this repo, inside the project directory:
 
-Create a `.env` file that looks like this
+#### 1. Create a `.env` file that looks like this
 
 ```
 ADMIN_USER_PASSWORD=somepassword
@@ -36,8 +36,8 @@ Emails sent to addresses that don't start with the prefix will be ignored. This 
 
 
   
-Then run `npm i`
+#### 2. Run `npm i`
 
-Then `npm start`
+#### 3. Run `npm start`
 
 Emails will be saved in the `mail` folder
