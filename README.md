@@ -1,9 +1,9 @@
 
-A simple [delivery smtp server](https://datatracker.ietf.org/doc/html/rfc5321#section-2.3.10) that makes it easy to have near infinite email addresses. Useful for development and testing. For example, automated tests can use a different email "account" on every run.
+A simple [delivery smtp server](https://datatracker.ietf.org/doc/html/rfc5321#section-2.3.10) to assist in development and testing of software that requires email accounts (i.e. identity management). There's no accounts to manage. All emails will be saved to file. You can therefore use a different email "account" for every automated test run for example.
 
-This is mostly just configuration around the excellent [Nodemailer SMTP Server](https://nodemailer.com/extras/smtp-server/).
+This is mostly just configuration around the excellent [Nodemailer SMTP Server](https://nodemailer.com/extras/smtp-server/) plus some file saving.
 
-**Not secure**. Nothing is encrypted.
+**Warning:** *Not secure. Nothing is encrypted.*
 
 ## Requirements
 
@@ -13,7 +13,7 @@ This is mostly just configuration around the excellent [Nodemailer SMTP Server](
 
 ## Setup
 
-Let's assume that you want to receive emails sent to many different `@dev1.mail.example.com` and  `@dev2.mail.example.com` addresses.
+Let's assume that you want to receive emails sent to the `@dev1.mail.example.com` and  `@dev2.mail.example.com` domains.
 
 ### DNS
 
@@ -42,9 +42,10 @@ After cloning this repo, inside the project directory:
 API_KEY=averylongpasswordtoprotectadminapi
 EMAIL_DOMAINS=dev1.mail.example.com,dev2.mail.example.com
 EMAIL_ACCOUNT_PREFIX=goodmailonly-
+ADMIN_APP_PORT=2255
 ```
 
-Emails sent to addresses that don't start with the prefix will be ignored. This provides some crude protection against spam. In the above example, an email sent to `goodmailonly-test-MCPNBoXE@dev1.mail.example.com` will be saved. An email sent to `test-MCPNBoXE@dev1.mail.example.com` will be refused.
+Emails sent to addresses that don't start with the prefix will be ignored. This provides some crude protection against spam. In the above example, an email sent to `goodmailonly-test-MCPNBoXE@dev1.mail.example.com` will be saved to file. An email sent to `test-MCPNBoXE@dev1.mail.example.com` will be rejected.
 
 
 #### 2. Run `npm i`
@@ -53,6 +54,8 @@ Emails sent to addresses that don't start with the prefix will be ignored. This 
 
 Emails will be saved in the `mail` folder
 
+# API Access
+You can get a list of all received emails by week using the admin api: `/api/mail/<year>/<week-number>?api_key=<configured setting>`. The weekly view provides API links to examine individual messages.
 
 # Testing your setup / Sending Email
 Testing this tool by using the SMTP protocol to directly call port 25 can be tricky since many ISPs and service providers (e.g. AWS) block outgoing traffic on port 25. Therefore, you'll need a proper SMTP gateway to send messages. You cand easily test your setup by manually sending emails from say gmail.
