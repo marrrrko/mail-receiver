@@ -1,14 +1,19 @@
 import { SMTPServer } from 'smtp-server'
 import mailparser from 'mailparser'
-import { createWriteStream, writeFile } from 'fs'
+import { createWriteStream, writeFile, mkdir } from 'fs'
+import express from 'express'
+import sanitize from 'sanitize-filename'
+import { DateTime } from 'luxon'
 
+const app = express()
 const { simpleParser } = mailparser
 const API_KEY = process.env.API_KEY
 const EMAIL_DOMAINS = (process.env.EMAIL_DOMAIN || '').split(',')
 const EMAIL_ACCOUNT_PREFIX = process.env.EMAIL_ACCOUNT_PREFIX
+const ADMIN_APP_PORT = process.env.ADMIN_APP_PORT || 3025
 
-if (!API_KEY || API_KEY.length < 8) {
-  throw new Error('ADMIN_USER_PASSWORD of 8 characters or more is required')
+if (!API_KEY || API_KEY.length < 20) {
+  throw new Error('API_KEY of 20 characters or more is required')
 }
 
 const SERVER_PORT = 25
@@ -24,7 +29,7 @@ server.on('error', (err) => {
   console.log(`Error: ${err.message}`)
 })
 server.listen(SERVER_PORT, null, () => {
-  console.log(`Listenning on ${SERVER_PORT}`)
+  console.log(`SMTP listening on ${SERVER_PORT}`)
 })
 
 function onConnect(session, callback) {
@@ -49,22 +54,43 @@ function onRcptTo(address, session, callback) {
 }
 
 function onData(stream, session, callback) {
-  const rawFileStream = createWriteStream(`mail/${session.id}.orig`)
   //stream.pipe(process.stdout) // print message to console
-  stream.pipe(rawFileStream)
-  simpleParser(stream, {}, (parseErr, parsed) => {
-    let filename
-    let body
-    if (parseErr) {
-      filename = `mail/${session.id}.err`
-      body = JSON.stringify(parseErr, null, '  ')
-    } else {
-      filename = `mail/${session.id}.parsed`
-      body = JSON.stringify(parsed, null, '  ')
-    }
-    writeFile(filename, body, (writeErr) => {
-      if (writeErr) console.log(`Failed to write email to file:`, writeErr)
+  const folderPath = `mail/${sanitize(
+    session.envelope.rcptTo[0].address,
+    sanitizeOptions
+  )}/`
+  mkdir(folderPath, { recursive: true }, () => {
+    const messageFileLabel = `${DateTime.utc().toISO()}-${session.id}`
+    const rawFileStream = createWriteStream(
+      `${folderPath}${messageFileLabel}.raw`
+    )
+    stream.pipe(rawFileStream)
+    simpleParser(stream, {}, (parseErr, parsed) => {
+      let filename
+      let body
+      if (parseErr) {
+        filename = `${folderPath}${messageFileLabel}.err`
+        body = JSON.stringify(parseErr, null, '  ')
+      } else {
+        filename = `${folderPath}${messageFileLabel}.json`
+        body = JSON.stringify(parsed, null, '  ')
+      }
+      writeFile(filename, body, (writeErr) => {
+        if (writeErr) console.log(`Failed to write email to file:`, writeErr)
+      })
     })
   })
   stream.on('end', callback)
 }
+
+function sanitizeOptions(charToReplace) {
+  return '-'
+}
+
+app.get('/api/mail', (req, res) => {
+  res.json({ gotMail: true })
+})
+
+app.listen(ADMIN_APP_PORT, () => {
+  console.log(`Admin app listening on ${ADMIN_APP_PORT}`)
+})
